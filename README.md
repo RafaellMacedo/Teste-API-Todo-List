@@ -25,6 +25,10 @@ Criação das migrations
 
 > bundle exec rails db:migrate
 
+Acesse o container da aplicação para executar o comando de rodar os testes
+
+> docker compose exec web bash
+> 
 Para rodar os testes, utilize o seguinte comando, pois, o projeto não esta setando automaticamente o banco de test durante a execução.
 
 > RAILS_ENV=test bundle exec rspec
