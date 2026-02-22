@@ -1,4 +1,7 @@
 class ListItem < ApplicationRecord
+  validates :titulo, presence: true
+  validates :data, presence: true
+  
   has_many :items_dependencies, dependent: :destroy
 
   has_many :dependencies,
@@ -10,5 +13,10 @@ class ListItem < ApplicationRecord
     list_item = list_item.where(titulo: params[:titulo]) if params[:titulo].present?
     list_item = list_item.where(data: params[:data].to_date) if params[:data].present?
     list_item
+  end
+
+  def self.findTitleWithDate(params)
+    list_item = includes(:dependencies)
+    list_item.find_by(titulo: params[:titulo],data: params[:data].to_date)
   end
 end
