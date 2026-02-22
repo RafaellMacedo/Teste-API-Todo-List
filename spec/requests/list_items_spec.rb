@@ -58,5 +58,18 @@ RSpec.describe "Controler List Items API", type: :request do
     end
   end
   
+  describe "GET /item" do
+    it "Return all items with your dependencies" do
+      ListItem.create!(titulo: "Item 1", data: Time.now)
+      ListItem.create!(titulo: "Item 2", data: Time.now)
+      ListItem.create!(titulo: "Item Dependencia 3", data: Time.now)
+  
+      get "/item"
+  
+      expect(response).to have_http_status(:ok)
+      expect(JSON.parse(response.body).size).to eq(3)
+    end
+  end
+
 end
 
