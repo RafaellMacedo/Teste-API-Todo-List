@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_02_21_212938) do
+ActiveRecord::Schema[8.1].define(version: 2026_02_22_175849) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -30,4 +30,5 @@ ActiveRecord::Schema[8.1].define(version: 2026_02_21_212938) do
   end
 
   add_foreign_key "items_dependencies", "list_items"
+  add_foreign_key "items_dependencies", "list_items", column: "depends_on", on_delete: :cascade
 end

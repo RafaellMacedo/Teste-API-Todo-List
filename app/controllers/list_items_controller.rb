@@ -36,6 +36,20 @@ class ListItemsController < ApplicationController
         render json: list_item, status: :ok
     end
 
+    def destroy
+        return required_fields unless validate_request
+
+        list_item = ListItem.findTitleWithDate(params)
+
+        return not_found unless list_item
+
+        if list_item.destroy
+            render json: { message: "Item deletado com sucesso" }, status: :ok
+        else
+            render json: { error: "Não foi possível deletar o item" }, status: :unprocessable_entity
+        end
+    end
+
     private
 
     def item_params

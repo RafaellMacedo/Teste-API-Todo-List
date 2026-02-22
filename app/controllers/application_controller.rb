@@ -1,5 +1,6 @@
 class ApplicationController < ActionController::API
- 
+  rescue_from ActiveRecord::InvalidForeignKey, with: :handle_foreign_key_violation
+  
   private
   
   def not_found
@@ -8,5 +9,10 @@ class ApplicationController < ActionController::API
   
   def required_fields
     render json: { error: "titulo e data são obrigatórios" }, status: :bad_request
+  end
+
+  def handle_foreign_key_violation(exception)
+    render json: { error: "Não é possível deletar o item porque existem dependências." },
+           status: :unprocessable_entity
   end
 end
