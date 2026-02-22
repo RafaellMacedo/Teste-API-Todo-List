@@ -22,21 +22,18 @@ class ListItemsController < ApplicationController
 
         list_item = ListItem.findTitleWithDate(params)
 
-        if list_item
-            update_params = params.permit(:titulo_novo, :data_novo).to_h.compact
+        return not_found unless list_item
 
-            item_updated = {}
-            item_updated[:titulo] = update_params[:titulo_novo] if update_params.key?(:titulo_novo)
-            item_updated[:data]   = update_params[:data_novo] if update_params.key?(:data_novo)
-
-            if item_updated.any?
-            list_item.update(item_updated)
-            end
-            
-            render json: list_item, status: :ok
-        else
-            not_found
+        if params[:titulo_novo].present?
+            list_item.update(titulo: params[:titulo_novo])
         end
+
+        if params[:data_novo].present?
+            new_date = DateTime.parse(params[:data_novo])
+            list_item.update_date_items_depencies(new_date)
+        end
+
+        render json: list_item, status: :ok
     end
 
     private

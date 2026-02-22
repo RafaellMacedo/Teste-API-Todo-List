@@ -308,6 +308,41 @@ RSpec.describe "Controler List Items API", type: :request do
       expect(response_json["data"]).not_to eq(item_date_old)
     end
   end
+
+  describe "PUT /item" do
+    it "Change the date and dependences" do
+      item_titleA = "Tarefa A"
+      item_titleB = "Tarefa B"
+      item_dateA = Date.parse("2026-10-20").to_datetime
+      item_dateB = Date.parse("2026-10-21").to_datetime
+
+      list_itemA = ListItem.create!(titulo: item_titleA, data: item_dateA)
+      list_itemB = ListItem.create!(titulo: item_titleB, data: item_dateB)
+
+      list_itemA.items_dependencies.create(depends_on: list_itemB.id)
+  
+      item_dateA_change = Date.parse("2026-10-25").to_datetime
+      
+      put "/item",
+           params: {
+             titulo: item_titleA,
+             data: item_dateA,
+             data_novo: item_dateA_change
+           },
+           as: :json
+
+      expect(response).to have_http_status(:ok)
+
+      dateA_expected = "25/10/2026"
+      dateB_expected = "26/10/2026"
+
+      response_json = JSON.parse(response.body)
+
+      expect(response_json["data"]).to eq(dateA_expected)
+      expect(response_json["data"]).not_to eq(item_dateA_change)
+      expect(response_json["dependencias"].first["data"]).to eq(dateB_expected)
+    end
+  end
   
 end
 
