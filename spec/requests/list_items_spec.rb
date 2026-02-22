@@ -343,6 +343,47 @@ RSpec.describe "Controler List Items API", type: :request do
       expect(response_json["dependencias"].first["data"]).to eq(dateB_expected)
     end
   end
+
+  describe "DELETE /item" do
+    it "Delete Item without dependences" do
+      item_title = "Tarefa A"
+      item_date = Date.parse("2026-10-20").to_datetime
+
+      ListItem.create!(titulo: item_title, data: item_date)
+      
+      delete "/item",
+           params: {
+             titulo: item_title,
+             data: item_date
+           },
+           as: :json
+
+      expect(response).to have_http_status(:ok)
+    end
+  end
+
+  describe "DELETE /item" do
+    it "Delete Item with dependences" do
+      item_titleA = "Tarefa A"
+      item_titleB = "Tarefa B"
+      item_dateA = Date.parse("2026-10-20").to_datetime
+      item_dateB = Date.parse("2026-10-21").to_datetime
+
+      list_itemA = ListItem.create!(titulo: item_titleA, data: item_dateA)
+      list_itemB = ListItem.create!(titulo: item_titleB, data: item_dateB)
+
+      list_itemA.items_dependencies.create(depends_on: list_itemB.id)
+      
+      delete "/item",
+           params: {
+             titulo: item_titleA,
+             data: item_dateA
+           },
+           as: :json
+
+      expect(response).to have_http_status(:unprocessable_entity)
+    end
+  end
   
 end
 
