@@ -1,5 +1,22 @@
 class ListItemsController < ApplicationController
 
+    def index
+        list_items = ListItem.includes(:items_dependencies)
+
+        render json: list_items.as_json(
+            include: {
+                items_dependencies: {
+                    include: {
+                        depends_on_item: {
+                            only: [:id, :titulo]
+                        }
+                    }
+                }
+            }
+
+            ), status: :ok
+    end
+
     def store
         item = ListItem.new(item_params)
 
