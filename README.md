@@ -18,13 +18,12 @@ Para rodar o projeto clone em sua máquina este repositório usando o comando ab
 
 Depois acesse a pasta clonada e rode os comandos para buildar o container
 
-docker composer build
-docker compose up
+> docker composer build
+> docker compose up
 
 Criação das migrations
-bundle exec rails g model ListItem titulo:string data:datetime
-bundle exec rails g model ItemsDependency listitem:references depends_on:integer
-bundle exec rails db:migrate
+
+> bundle exec rails db:migrate
 
 Para rodar os testes, utilize o seguinte comando, pois, o projeto não esta setando automaticamente o banco de test durante a execução.
 
