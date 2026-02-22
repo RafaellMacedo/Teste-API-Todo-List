@@ -17,29 +17,41 @@ Tecnologias utilizadas
 
 Clone o repositório
 
-`git clone git@github.com:RafaellMacedo/Teste-API-Todo-List.git`
+```
+git clone git@github.com:RafaellMacedo/Teste-API-Todo-List.git
+```
 
 Acesse a pasta do projeto e build o container:
 
-`docker composer build
-docker compose up`
+```
+docker composer build
+docker compose up
+```
 
 Entre no container da aplicação para criar o banco de dados e rodar os testes:
 
-`docker compose exec web bash`
+```
+docker compose exec web bash
+```
 
 Criar os bancos
 
-`bundle exec rails db:create`
+```
+bundle exec rails db:create
+```
 
 Rodar as migrations
 
-`bundle exec rails db:migrate`
+```
+bundle exec rails db:migrate
+```
 
 Rodar os testes`
 >Como o projeto não seta automaticamente o banco de teste, rode:
 
-`RAILS_ENV=test bundle exec rspec`
+```
+RAILS_ENV=test bundle exec rspec
+```
 
 # Desenvolvimento da API
 
@@ -66,13 +78,20 @@ Parâmetros opcionais:
 
 > Exemplos:
 
-`/item`
-`/item?titulo=Tarefa`
-`/item?titulo=Tarefa&data=2026-02-22`
+```
+/item
+```
+```
+/item?titulo=Tarefa
+```
+```
+/item?titulo=Tarefa&data=2026-02-22
+```
 
 > Response
 
-`{
+```
+{
     {
         "id": 3,
         "titulo": "Tarefa A",
@@ -92,7 +111,7 @@ Parâmetros opcionais:
         ]
     }
 }
-`
+```
 
 ## POST /item
 
@@ -102,17 +121,20 @@ Dependências podem ser enviadas como array de títulos.
 
 > Body
 
-`{
+```
+{
     "titulo": "Tarefa B",
     "data": "20/10/2026",
     "dependencias": [
         "Tarefa A"
     ]
-}`
+}
+```
 
 > Response
 
-`{
+```
+{
     "id": 4,
     "titulo": "Tarefa D",
     "data": "20/10/2026",
@@ -123,7 +145,8 @@ Dependências podem ser enviadas como array de títulos.
             "data": "20/10/2026"
         }
     ]
-}`
+}
+```
 
 ## PUT /item
 
@@ -134,33 +157,40 @@ Altera campos `titulo` e `data` de um item.
 
 > Body
 
-`{
+```
+{
     "titulo": "Tarefa B",
     "titulo_novo": "Tarefa C",
     "data": "21/10/2026",
     "data_novo": "25/10/2026"
-}`
+}
+```
 
 > Response
 
-`{
+```
+{
     "id": 3,
     "titulo": "Tarefa C",
     "data": "25/10/2026",
     "dependencias": []
-}`
+}
+```
 
 > Exemplo de alteração de item com dependente
 
-`{
+```
+{
     "titulo": "Tarefa C",
     "data": "20/10/2026",
     "data_novo": "25/10/2026"
-}`
+}
+```
 
 > Response
 
-`{
+```
+{
     "id": 6,
     "titulo": "Tarefa 1",
     "data": "25/10/2026",
@@ -171,7 +201,8 @@ Altera campos `titulo` e `data` de um item.
             "data": "26/10/2026"
         }
     ]
-}`
+}
+```
 
 ## DELETE /item
 
@@ -181,13 +212,17 @@ Campos obrigatórios: `titulo` e `data`.
 
 > Body
 
-`{
+```
+{
     "titulo": "Tarefa D",
     "data": "20/10/2026"
-}`
+}
+```
 
 > Response
 
-`{
+```
+{
     "message": "Item deletado com sucesso"
-}`
+}
+```
