@@ -20,30 +20,36 @@ class ListItemsController < ApplicationController
     def update
         return required_fields unless validate_request
 
-        list_item = ListItem.findTitleWithDate(params)
+        item = ListItem.findTitleWithDate(params)
 
-        return not_found unless list_item
+        return not_found unless item
 
         if params[:titulo_novo].present?
-            list_item.update(titulo: params[:titulo_novo])
+            item.update(titulo: params[:titulo_novo])
         end
 
         if params[:data_novo].present?
             new_date = DateTime.parse(params[:data_novo])
-            list_item.update_date_items_depencies(new_date)
+            item.update_date_items_depencies(new_date)
         end
 
-        render json: list_item, status: :ok
+        if params[:dependencias].present?
+            return not_found_dependences unless exist_dependences
+            item.items_dependencies.destroy_all
+            store_dependencies(item)
+        end
+
+        render json: item, status: :ok
     end
 
     def destroy
         return required_fields unless validate_request
 
-        list_item = ListItem.findTitleWithDate(params)
+        item = ListItem.findTitleWithDate(params)
 
-        return not_found unless list_item
+        return not_found unless item
 
-        if list_item.destroy
+        if item.destroy
             render json: { message: "Item deletado com sucesso" }, status: :ok
         else
             render json: { error: "Não foi possível deletar o item" }, status: :unprocessable_entity
@@ -66,6 +72,14 @@ class ListItemsController < ApplicationController
         end
         return true
     end
+
+    def exist_dependences
+        item_dependence_ids = params[:dependencias].map do |dependencia|
+            ListItem.find_by(titulo: dependencia)&.id
+        end.compact
+        item_dependence_ids.present?
+    end
+    
     def store_dependencies(item)
         return unless params[:dependencias].present?
 

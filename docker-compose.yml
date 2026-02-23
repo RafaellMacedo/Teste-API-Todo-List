@@ -2,7 +2,6 @@ services:
   web:
     build: .
     container_name: rails_app
-    # command: bash -c "bundle install && bin/rails db:prepare && bin/rails server -b 0.0.0.0 -p 3000"
     volumes:
       - .:/rails
       - .:/app
