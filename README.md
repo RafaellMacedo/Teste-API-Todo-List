@@ -94,18 +94,18 @@ Parâmetros opcionais:
 {
     {
         "id": 3,
-        "titulo": "Tarefa A",
+        "titulo": "Tarefa B",
         "data": "20/10/2026",
         "dependencias": []
     },
     {
         "id": 4,
-        "titulo": "Tarefa B",
+        "titulo": "Tarefa A",
         "data": "20/10/2026",
         "dependencias": [
             {
                 "id": 3,
-                "titulo": "Tarefa A",
+                "titulo": "Tarefa B",
                 "data": "20/10/2026"
             }
         ]
@@ -123,10 +123,10 @@ Dependências podem ser enviadas como array de títulos.
 
 ```
 {
-    "titulo": "Tarefa B",
+    "titulo": "Tarefa A",
     "data": "20/10/2026",
     "dependencias": [
-        "Tarefa A"
+        "Tarefa B"
     ]
 }
 ```
@@ -136,12 +136,12 @@ Dependências podem ser enviadas como array de títulos.
 ```
 {
     "id": 4,
-    "titulo": "Tarefa D",
+    "titulo": "Tarefa A",
     "data": "20/10/2026",
     "dependencias": [
         {
             "id": 3,
-            "titulo": "Tarefa C",
+            "titulo": "Tarefa B",
             "data": "20/10/2026"
         }
     ]
@@ -154,6 +154,7 @@ Altera campos `titulo` e `data` de um item.
 - Campos obrigatórios para identificar o item: `titulo` e `data`.
 - Campos opcionais para alteração: `titulo_novo`, `data_novo`.
 - Se houver dependentes e a data for alterada, suas datas também são atualizadas recursivamente.
+- É possível atualizar a dependência de um item, substituindo-a por outro item. A seguir, um exemplo de requisição
 
 > Body
 
@@ -181,7 +182,7 @@ Altera campos `titulo` e `data` de um item.
 
 ```
 {
-    "titulo": "Tarefa C",
+    "titulo": "Tarefa A",
     "data": "20/10/2026",
     "data_novo": "25/10/2026"
 }
@@ -192,13 +193,42 @@ Altera campos `titulo` e `data` de um item.
 ```
 {
     "id": 6,
-    "titulo": "Tarefa 1",
+    "titulo": "Tarefa A",
     "data": "25/10/2026",
     "dependencias": [
         {
             "id": 5,
-            "titulo": "Tarefa 1.1",
+            "titulo": "Tarefa B",
             "data": "26/10/2026"
+        }
+    ]
+}
+```
+
+> Exemplo de alteração de item dependente
+
+```
+{
+    "titulo": "Tarefa A",
+    "data": "20/10/2026",
+    "dependencias": [
+        "Tarefa C"
+    ]
+}
+```
+
+> Response
+
+```
+{
+    "id": 6,
+    "titulo": "Tarefa A",
+    "data": "25/10/2026",
+    "dependencias": [
+        {
+            "id": 5,
+            "titulo": "Tarefa C",
+            "data": "21/10/2026"
         }
     ]
 }
