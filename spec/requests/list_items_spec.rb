@@ -6,8 +6,8 @@ RSpec.describe "Controler List Items API", type: :request do
     ListItem.delete_all
   end
 
-  describe "POST /item" do
-    it "Store New Items With Dependence Created" do
+  describe "POST /item when creating an item" do
+    it "creates with dependencies" do
       title_expected = "Teste Técnico"
       date_expected  = "2026-02-21 19:04"
 
@@ -36,7 +36,7 @@ RSpec.describe "Controler List Items API", type: :request do
       expect(item.items_dependencies.count).to eq(3)
     end
 
-    it "Store New Items without Dependence Created" do
+    it "creates without dependencies" do
       title_expected = "Item without dependence"
       date_expected  = "2026-02-21 19:04"
 
@@ -59,7 +59,7 @@ RSpec.describe "Controler List Items API", type: :request do
   end
   
   describe "GET /item" do
-    it "Return all items with your dependencies" do
+    it "returns all items with their dependencies" do
       ListItem.create!(titulo: "Item 1", data: Time.now)
       ListItem.create!(titulo: "Item 2", data: Time.now)
       ListItem.create!(titulo: "Item 3", data: Time.now)
@@ -72,7 +72,7 @@ RSpec.describe "Controler List Items API", type: :request do
   end
 
   describe "GET /item?titulo=Tarefa A" do
-    it "Search the title" do
+    it "searches by title" do
       item_title = "Tarefa A"
       title_expected = "Tarefa A"
 
@@ -90,7 +90,7 @@ RSpec.describe "Controler List Items API", type: :request do
   end
   
   describe "GET /item?data=2026-02-22" do
-    it "Search the date" do
+    it "searches by date" do
       item_title = "Tarefa A"
       item_date = Date.parse("2026-02-22").to_datetime
       
@@ -112,7 +112,7 @@ RSpec.describe "Controler List Items API", type: :request do
   end
   
   describe "GET /item?titulo=Tarefa A&data=2026-02-22" do
-    it "Search using title and date" do
+    it "searches by title and date" do
       item_title = "Tarefa A"
       item_date = Date.parse("2026-02-22").to_datetime
       item_date2 = Date.parse("2026-02-23").to_datetime
@@ -137,7 +137,7 @@ RSpec.describe "Controler List Items API", type: :request do
   end
 
   describe "PUT /item" do
-    it "Not change item because item not found" do
+    it "does not update the item when it is not found" do
       item_title = "Tarefa A"
       item_date = Time.now
       title_expected = "Tarefa A"
@@ -166,10 +166,8 @@ RSpec.describe "Controler List Items API", type: :request do
 
       expect(response).to have_http_status(:not_found)
     end
-  end
 
-  describe "PUT /item" do
-    it "Not change item when not send title in request" do
+    it "does not update the item when title is missing" do
       item_title = "Tarefa A"
       item_date = Time.now
       title_expected = "Tarefa A"
@@ -197,10 +195,8 @@ RSpec.describe "Controler List Items API", type: :request do
 
       expect(response).to have_http_status(:bad_request)
     end
-  end
 
-  describe "PUT /item" do
-    it "Not change item when not send date in request" do
+    it "does not update the item when date is missing" do
       item_title = "Tarefa A"
       item_date = Time.now
       title_expected = "Tarefa A"
@@ -230,8 +226,8 @@ RSpec.describe "Controler List Items API", type: :request do
     end
   end
 
-  describe "PUT /item" do
-    it "Change the title" do
+  describe "PUT /item when updating an item" do
+    it "updates the title" do
       item_title = "Tarefa A"
       item_date = Date.parse("2026-02-22").to_datetime
       title_expected = "Tarefa A"
@@ -267,10 +263,8 @@ RSpec.describe "Controler List Items API", type: :request do
       expect(response_json["titulo"]).to eq(title_expected)
       expect(response_json["titulo"]).not_to eq(item_title_old)
     end
-  end
 
-  describe "PUT /item" do
-    it "Change the date" do
+    it "updates the date" do
       item_title = "Tarefa A"
       item_date = Date.parse("2026-02-22").to_datetime
 
@@ -307,10 +301,8 @@ RSpec.describe "Controler List Items API", type: :request do
       expect(response_json["data"]).to eq(date_expected)
       expect(response_json["data"]).not_to eq(item_date_old)
     end
-  end
 
-  describe "PUT /item" do
-    it "Change the date and dependences" do
+    it "updates dependencies" do
       item_titleA = "Tarefa A"
       item_titleB = "Tarefa B"
       item_dateA = Date.parse("2026-10-20").to_datetime
@@ -344,8 +336,78 @@ RSpec.describe "Controler List Items API", type: :request do
     end
   end
 
+  describe "PUT /item" do
+    it "updates dependencies when the item is found" do
+      item_titleA = "Tarefa A"
+      item_titleB = "Tarefa B"
+      item_titleC = "Tarefa C"
+      item_dateA = Date.parse("2026-10-20").to_datetime
+      item_dateB = Date.parse("2026-10-21").to_datetime
+      item_dateC = Date.parse("2026-10-21").to_datetime
+
+      list_itemA = ListItem.create!(titulo: item_titleA, data: item_dateA)
+      list_itemB = ListItem.create!(titulo: item_titleB, data: item_dateB)
+      ListItem.create!(titulo: item_titleC, data: item_dateC)
+
+      list_itemA.items_dependencies.create(depends_on: list_itemB.id)
+  
+      item_dateA_change = Date.parse("2026-10-25").to_datetime
+      
+      put "/item",
+           params: {
+             titulo: item_titleA,
+             data: item_dateA,
+             dependencias: [
+              item_titleC
+            ]
+           },
+           as: :json
+
+      expect(response).to have_http_status(:ok)
+
+      titleA_expected = "Tarefa A"
+      titleC_expected = "Tarefa C"
+      dateC_expected = "21/10/2026"
+
+      response_json = JSON.parse(response.body)
+
+      expect(response_json["titulo"]).to eq(titleA_expected)
+      expect(response_json["dependencias"].first["titulo"]).to eq(titleC_expected)
+      expect(response_json["dependencias"].first["data"]).to eq(dateC_expected)
+    end
+  end
+
+  describe "PUT /item when dependencies are invalid" do
+    it "does not update dependencies" do
+      item_titleA = "Tarefa A"
+      item_titleB = "Tarefa B"
+      item_titleC = "Tarefa C"
+      item_dateA = Date.parse("2026-10-20").to_datetime
+      item_dateB = Date.parse("2026-10-21").to_datetime
+
+      list_itemA = ListItem.create!(titulo: item_titleA, data: item_dateA)
+      list_itemB = ListItem.create!(titulo: item_titleB, data: item_dateB)
+
+      list_itemA.items_dependencies.create(depends_on: list_itemB.id)
+  
+      item_dateA_change = Date.parse("2026-10-25").to_datetime
+      
+      put "/item",
+           params: {
+             titulo: item_titleA,
+             data: item_dateA,
+             dependencias: [
+              item_titleC
+            ]
+           },
+           as: :json
+
+      expect(response).to have_http_status(:not_found)
+    end
+  end
+
   describe "DELETE /item" do
-    it "Delete Item without dependences" do
+    it "deletes an item without dependencies" do
       item_title = "Tarefa A"
       item_date = Date.parse("2026-10-20").to_datetime
 
@@ -360,10 +422,8 @@ RSpec.describe "Controler List Items API", type: :request do
 
       expect(response).to have_http_status(:ok)
     end
-  end
 
-  describe "DELETE /item" do
-    it "Delete Item with dependences" do
+    it "deletes an item with dependencies" do
       item_titleA = "Tarefa A"
       item_titleB = "Tarefa B"
       item_dateA = Date.parse("2026-10-20").to_datetime
@@ -381,7 +441,7 @@ RSpec.describe "Controler List Items API", type: :request do
            },
            as: :json
 
-      expect(response).to have_http_status(:unprocessable_entity)
+      expect(response).to have_http_status(:unprocessable_content)
     end
   end
   
